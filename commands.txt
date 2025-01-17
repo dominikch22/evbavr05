@@ -8,5 +8,5 @@ avr-objcopy -O ihex -R .eeprom program.o program.hex
 
 
 usbipd list
- usbipd bind --busid=1-3
- usbipd attach --wsl --busid 1-3
+usbipd bind --busid=1-4
+usbipd attach --wsl --busid 1-4
