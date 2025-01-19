@@ -52,6 +52,8 @@ int main(void) {
   adc_init();
   lcd_begin();
 
+ 
+
   while (1) {
 
      if(display_mode == 1){
@@ -61,7 +63,7 @@ int main(void) {
     }
     toggle();
     akademia();
-    _delay_ms(800);
+    _delay_ms(100);
   }
 
   return 0;
@@ -117,18 +119,27 @@ void toggle() {
   if (adc_value < 100 && !was_low) {
     toggle_display();
     was_low = true;
-  } else {
+  } else if(adc_value > 600) {
     was_low = false;
   }
 }
 
-void akademia() {
-  lcd_set_cursor(0, 0);
-  lcd_print(display);
 
-  char first = display[0];
-  for (int j = 0; j < strlen(text) - 1; j++) {
-    display[j] = display[j + 1];
-  }
-  display[strlen(text) - 1] = first;
+static uint8_t counter = 0; 
+
+void akademia() {
+    counter++;
+    
+    if(counter == 8) {
+        lcd_set_cursor(0, 0);
+        lcd_print(display);
+
+        char first = display[0];
+        for (int j = 0; j < strlen(text) - 1; j++) {
+            display[j] = display[j + 1];
+        }
+        display[strlen(text) - 1] = first;
+        
+        counter = 0;
+    }
 }
