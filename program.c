@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <util/delay.h>
+#include "library/eeprom/eeprom.h"
 
 struct tm {
   uint8_t hour;
@@ -56,12 +57,15 @@ int main(void) {
 
   while (1) {
 
-     if(display_mode == 1){
+     if(display_mode == 2){
       show_voltage();
-    }else{
+    }else if(display_mode == 1){
       show_temp();
+    }else{
+      clicker();
     }
     toggle();
+    clickerButton();
     akademia();
     _delay_ms(100);
   }
@@ -108,12 +112,11 @@ void show_voltage() {
 }
 
 void toggle_display() { 
-      display_mode = (display_mode + 1) % 2;
+      display_mode = (display_mode + 1) % 3;
   }
 
 static bool was_low = false;
 void toggle() {
-  static unsigned long last_toggle = 0;
   uint16_t adc_value = adc_read(2);
 
   if (adc_value < 100 && !was_low) {
@@ -142,4 +145,38 @@ void akademia() {
         
         counter = 0;
     }
+}
+
+static bool was_low_clicker = false;
+void clickerButton(){
+   uint16_t adc_value = adc_read(3);
+
+  if (adc_value < 100 && !was_low_clicker) {
+    addToClicker();
+    was_low_clicker = true;
+  } else if(adc_value > 600) {
+    was_low_clicker = false;
+  }
+}
+
+void addToClicker(){
+    uint16_t data_read;
+    data_read = EEPROM_read_uint16(0);
+    data_read++;
+    EEPROM_write_uint16(0, data_read);
+}
+
+void clicker(){
+    uint16_t data_read;
+    char eeprom_str[17];
+    
+    
+    data_read = EEPROM_read_uint16(0);
+    
+    sprintf(eeprom_str, "Clicker: %u", data_read);
+    
+    lcd_set_cursor(0, 1);
+    lcd_print("                "); 
+    lcd_set_cursor(0, 1);
+    lcd_print(eeprom_str);
 }
